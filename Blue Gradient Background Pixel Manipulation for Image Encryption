@@ -1,0 +1,55 @@
+from PIL import Image
+
+def encrypt_image(image_path, key):
+    # Open the image
+    img = Image.open(image_path)
+    width, height = img.size
+    
+    # Convert key to list of integers
+    key_list = [int(char) for char in str(key)]
+    
+    # Encrypt the image
+    encrypted_pixels = []
+    for y in range(height):
+        for x in range(width):
+            pixel = img.getpixel((x, y))
+            encrypted_pixel = tuple((pixel[i] + key_list[i % len(key_list)]) % 256 for i in range(len(pixel)))
+            encrypted_pixels.append(encrypted_pixel)
+    
+    # Create encrypted image
+    encrypted_img = Image.new(img.mode, img.size)
+    encrypted_img.putdata(encrypted_pixels)
+    
+    # Save encrypted image
+    encrypted_img.save("encrypted_image.png")
+    print("Image encrypted successfully!")
+
+def decrypt_image(encrypted_image_path, key):
+    # Open the encrypted image
+    encrypted_img = Image.open(encrypted_image_path)
+    width, height = encrypted_img.size
+    
+    # Convert key to list of integers
+    key_list = [int(char) for char in str(key)]
+    
+    # Decrypt the image
+    decrypted_pixels = []
+    for y in range(height):
+        for x in range(width):
+            pixel = encrypted_img.getpixel((x, y))
+            decrypted_pixel = tuple((pixel[i] - key_list[i % len(key_list)]) % 256 for i in range(len(pixel)))
+            decrypted_pixels.append(decrypted_pixel)
+    
+    # Create decrypted image
+    decrypted_img = Image.new(encrypted_img.mode, encrypted_img.size)
+    decrypted_img.putdata(decrypted_pixels)
+    
+    # Save decrypted image
+    decrypted_img.save("decrypted_image.png")
+    print("Image decrypted successfully!")
+
+# Example usage
+image_path = "image example.png"
+key = "123"
+encrypt_image(image_path, key)
+decrypt_image("encrypted_image.png", key)
